@@ -22,8 +22,10 @@ def match(cMinutiaeBuffer1, cMinutiaeBuffer2):
   print("  Score : [" + str(cScore.value) + "]")
   return cMatched
 
-def save_min(file, name):
-  copyfile(file, "prints/{}.min".format(name))
+def save_min(name, cMinutiaeBuffer):
+  imageFile = open("prints/{}.min".format(name), "wb")
+  imageFile.write(cMinutiaeBuffer)
+
 def quality_check(cImageBuffer):
   cQuality = c_int(0)
   result = sgfplib.GetImageQuality(finger_width, finger_height, cImageBuffer, byref(cQuality))
@@ -47,13 +49,14 @@ def capture(cap, file):
   cMinutiaeBuffer = (c_char*constant_sg400_template_size)()
   result = sgfplib.CreateSG400Template(cImageBuffer, cMinutiaeBuffer);
   if (result == SGFDxErrorCode.SGFDX_ERROR_NONE):
-    minutiaeFile = open("{}{}.min".format(file, cap), "wb")
-    minutiaeFile.write(cMinutiaeBuffer)
+    #minutiaeFile = open("{}{}.min".format(file, cap), "wb")
+    #minutiaeFile.write(cMinutiaeBuffer)
+    pass
   else:
    print("  ERROR - Unable to create first template. Exiting\n");
    exit()
 
-  return cMinutiaeBuffer, qc, "{}{}.min".format(file, cap)
+  return cMinutiaeBuffer, qc
 
 def capture_check():
   result = sgfplib.Create()
@@ -75,34 +78,35 @@ def capture_check():
      exit()
   else:
     filename = input('Which finger would you like to test with (no spaces)? (e.g. lt) >> ');
-    cMinutiaeBuffer1, quality1, file1 = capture(1, filename)
+    cMinutiaeBuffer1, quality1 = capture(1, filename)
 
-    cMinutiaeBuffer2, quality2, file2 = capture(2, filename)
+    cMinutiaeBuffer2, quality2 = capture(2, filename)
 
     cMatched = match(cMinutiaeBuffer1, cMinutiaeBuffer2)
 
     if (cMatched.value == True):
       print("MATCH");
       if quality1 >= quality2:
-        min_file = file1
+        save_min(filename, cMinutiaeBuffer1)
       else:
-        min_file = file2
-      save_min(min_file, filename)
+        save_min(filename, cMinutiaeBuffer1)
+
       return filename
     else:
       print("NO MATCH");
 
-    result = sgfplib.CloseDevice()
-
-  result = sgfplib.Terminate()
-
 def main_menu():
   file = capture_check()
-  cMinutiaeBuffer3, quality3, file3 = capture(3, file)
+  cMinutiaeBuffer3, quality3 = capture(3, file)
   cMin = open("prints/{}.min".format(file), "rb")
   cMatched = match(cMin.read(), cMinutiaeBuffer3)
   if (cMatched.value == True):
     print("MATCH");
+  else:
+    print("NO MATCH");
+  sgfplib.CloseDevice()
+
+  sgfplib.Terminate()
 
 
 main_menu()
