@@ -4,6 +4,7 @@ from pysgfplib import *
 from ctypes import *
 from os import listdir
 from tkinter import *
+from time import sleep
 
 constant_hamster_pro20_width = 300
 constant_hamster_pro20_height = 400
@@ -81,8 +82,9 @@ def capture(cap, file):
   return cMinutiaeBuffer, qc
 
 def capture_check():
-  filename = input('Which finger would you like to test with (no spaces)? (e.g. lt) >> ');
+  filename = finger_input.get();
   cMinutiaeBuffer1, quality1 = capture(1, filename)
+  sleep(2)
   cMinutiaeBuffer2, quality2 = capture(2, filename)
   cMatched = match(cMinutiaeBuffer1, cMinutiaeBuffer2)
   if (cMatched.value == True):
@@ -103,35 +105,38 @@ def check_in():
     cMin = open("prints/{}".format(fprint), "rb")
     cMatched = match(cMin.read(), cMinutiaeBuffer3)
     if (cMatched.value == True):
-      print("MATCH");
+      output.insert("end","{}[MATCH]::".format(fprint));
     else:
-      print("NO MATCH");
+      #output.insert("end","{}[NO MATCH]::".format(fprint));
+      pass
 
-def gui():
+
+
+result = start()
+result = sgfplib.OpenDevice(0)
+if (result != SGFDxErrorCode.SGFDX_ERROR_NONE):
+  print("  ERROR - Unable to initialize SecuGen library. Exiting\n");
+  exit()
+else:
   tk = Tk()
   tk.title("pythonFingers")
-  frame = Frame(tk, relief=RIDGE, borderwidth=2)
 
+  frame = Frame(tk, relief=RIDGE, borderwidth=2, bg="grey")
   btnExit = Button(frame,text="Exit",command=tk.destroy)
-
   btnAdd = Button(frame,text="add fingerprint",command=capture_check)
   btnCheck_in = Button(frame,text="check for fingerprint",command=check_in)
+  output = Text(tk, width=100, height=10, font=('Arial', 14))
+  label_finger_input = Label(frame, width=38, font=('Arial', 14), bg="black", fg="white", text="NAME to ADD")
+  finger_input = Entry(frame, width=38, font=('Arial', 14))
+
+  label_finger_input.pack(side=TOP, anchor=NW)
   frame.pack(fill=BOTH,expand=1)
   btnExit.pack(side=BOTTOM, pady=10)
-  btnAdd.pack(side=LEFT, pady=10)
-  btnCheck_in.pack(side=LEFT, pady=10)
+  btnCheck_in.pack(side=RIGHT, pady=10, anchor=NE)
+  finger_input.pack(side=TOP, pady=10, anchor=NW)
+  btnAdd.pack(pady=10, anchor=SW)
+  output.pack(pady=5)
+
   tk.mainloop()
 
-def main_menu():
-  result = start()
-  result = sgfplib.OpenDevice(0)
-  if (result != SGFDxErrorCode.SGFDX_ERROR_NONE):
-     print("  ERROR - Unable to initialize SecuGen library. Exiting\n");
-     exit()
-  else:
-    gui()
-    #file = capture_check()
-    #check_in(file)
-  end()
-
-main_menu()
+end()
