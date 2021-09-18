@@ -44,8 +44,23 @@ def match(cMinutiaeBuffer1, cMinutiaeBuffer2):
   return cMatched
 
 def save_min(name, cMinutiaeBuffer):
-  imageFile = open("prints/{}.min".format(name), "wb")
-  imageFile.write(cMinutiaeBuffer)
+  taken = 0
+  if(bool(name) == True):
+    fprints = listdir("prints")
+    for fprint in fprints:
+      if(fprint == "{}.min".format(name)):
+        taken = 1
+        print("name in use")
+        output.insert("end","name in use: {}   ".format(fprint));
+      cMin = open("prints/{}".format(fprint), "rb")
+      cMatched = match(cMin.read(), cMinutiaeBuffer)
+      if (cMatched.value == True):
+        taken = 1
+        print("finger in use")
+        output.insert("end","finger in use: {}   ".format(fprint));
+    if(taken == 0):
+      imageFile = open("prints/{}.min".format(name), "wb")
+      imageFile.write(cMinutiaeBuffer)
 
 def quality_check(cImageBuffer):
   cQuality = c_int(0)
@@ -54,26 +69,18 @@ def quality_check(cImageBuffer):
   return cQuality.value
 
 def capture(cap, file):
-  #input("Capture {}. Please place {} on sensor and press <ENTER> ".format(cap, file));
   cImageBuffer = (c_char*finger_width*finger_height)()
   x = 0
   while (x == 0):
     result = sgfplib.GetImage(cImageBuffer)
     if (result == SGFDxErrorCode.SGFDX_ERROR_NONE):
-    #imageFile = open("{}{}.raw".format(file, cap), "wb")
-    #imageFile.write(cImageBuffer)
      x = 1
-  #else:
-    #print("  ERROR - Unable to capture image. retry\n");
-    #capture(cap, file)
 
   qc = quality_check(cImageBuffer)
 
   cMinutiaeBuffer = (c_char*constant_sg400_template_size)()
   result = sgfplib.CreateSG400Template(cImageBuffer, cMinutiaeBuffer);
   if (result == SGFDxErrorCode.SGFDX_ERROR_NONE):
-    #minutiaeFile = open("{}{}.min".format(file, cap), "wb")
-    #minutiaeFile.write(cMinutiaeBuffer)
     pass
   else:
    print("  ERROR - Unable to create first template. Exiting\n");
@@ -107,7 +114,6 @@ def check_in():
     if (cMatched.value == True):
       output.insert("end","{}[MATCH]::".format(fprint));
     else:
-      #output.insert("end","{}[NO MATCH]::".format(fprint));
       pass
 
 
@@ -122,20 +128,27 @@ else:
   tk.title("pythonFingers")
 
   frame = Frame(tk, relief=RIDGE, borderwidth=2, bg="grey")
-  btnExit = Button(frame,text="Exit",command=tk.destroy)
-  btnAdd = Button(frame,text="add fingerprint",command=capture_check)
-  btnCheck_in = Button(frame,text="check for fingerprint",command=check_in)
-  output = Text(tk, width=100, height=10, font=('Arial', 14))
-  label_finger_input = Label(frame, width=38, font=('Arial', 14), bg="black", fg="white", text="NAME to ADD")
-  finger_input = Entry(frame, width=38, font=('Arial', 14))
+  frameAdd = Frame(frame, relief=RIDGE, borderwidth=2, bg="grey")
+  frameCheck = Frame(frame, relief=RIDGE, borderwidth=2, bg="grey")
+  frameOutput = Frame(tk, relief=RIDGE, borderwidth=2, bg="black")
+  btnExit = Button(frameOutput,text="Exit",command=tk.destroy, bg="white", fg="black")
+  btnAdd = Button(frameAdd,text="add fingerprint",command=capture_check)
+  btnCheck_in = Button(frameCheck,text="check for fingerprint",command=check_in)
+  output = Text(frameOutput, width=100, height=10, font=('Arial', 14))
+  label_finger_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="NAME to ADD")
+  label_finger_check = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="Check Fingerprint")
+  finger_input = Entry(frameAdd, width=38, font=('Arial', 14))
 
-  label_finger_input.pack(side=TOP, anchor=NW)
-  frame.pack(fill=BOTH,expand=1)
-  btnExit.pack(side=BOTTOM, pady=10)
-  btnCheck_in.pack(side=RIGHT, pady=10, anchor=NE)
-  finger_input.pack(side=TOP, pady=10, anchor=NW)
-  btnAdd.pack(pady=10, anchor=SW)
+  frame.pack(side=TOP, fill=BOTH, expand=1)
+  frameAdd.pack(side=LEFT, anchor=NW, fill=BOTH, expand=.5)
+  frameCheck.pack(side=RIGHT, anchor=NE, fill=BOTH, expand=.5)
+  frameOutput.pack(side=BOTTOM, fill=BOTH, expand=1)
+  label_finger_input.pack(pady=5)
+  btnCheck_in.pack(pady=5)
+  finger_input.pack(pady=5)
+  btnAdd.pack(pady=5)
   output.pack(pady=5)
+  btnExit.pack(side=BOTTOM)
 
   tk.mainloop()
 
