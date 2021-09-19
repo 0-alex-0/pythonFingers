@@ -5,6 +5,7 @@ from ctypes import *
 from os import listdir, mkdir
 from tkinter import *
 from time import sleep
+from datetime import datetime
 
 constant_hamster_pro20_width = 300
 constant_hamster_pro20_height = 400
@@ -53,7 +54,7 @@ def save_min(name, cMinutiaeBuffer):
   if(bool(name) == True):
     fprints = listdir("prints")
     for fprint in fprints:
-      if(fprint == "{}.min".format(name)):
+      if(fprint == "{}".format(name)):
         taken = 1
         print("name in use")
         output.insert("end","name in use: {}   ".format(fprint));
@@ -64,8 +65,9 @@ def save_min(name, cMinutiaeBuffer):
         print("finger in use")
         output.insert("end","finger in use: {}   ".format(fprint));
     if(taken == 0):
-      imageFile = open("prints/{}.min".format(name), "wb")
+      imageFile = open("prints/{}".format(name), "wb")
       imageFile.write(cMinutiaeBuffer)
+      output.insert("end","[FINGER ADDED]");
 
 def quality_check(cImageBuffer):
   cQuality = c_int(0)
@@ -102,7 +104,6 @@ def capture_check():
     cMinutiaeBuffer2, quality2 = capture(2, filename)
     cMatched = match(cMinutiaeBuffer1, cMinutiaeBuffer2)
     if (cMatched.value == True):
-      output.insert("end","[FINGER ADDED]");
       if quality1 >= quality2:
         cMinutiaeBuffer = cMinutiaeBuffer1
       else:
@@ -115,6 +116,11 @@ def capture_check():
   else:
     output.insert("end"," [MISSING DATA] ");
 
+def track_date(name):
+  today = datetime.today().strftime("%Y-%m-%d")
+  dateFile = open("dates/{}".format(today), "a")
+  dateFile.write("{}, ".format(name))
+
 def check_in():
   file="check_in"
   fprints = listdir("prints")
@@ -124,10 +130,17 @@ def check_in():
     cMatched = match(cMin.read(), cMinutiaeBuffer3)
     if (cMatched.value == True):
       output.insert("end"," {} [MATCH] ".format(fprint));
+      track_date(fprint)
     else:
       pass
 
+def check_today():
+  today = datetime.today().strftime("%Y-%m-%d")
+  dateFile = open("dates/{}".format(today), "r")
+  output.insert("end", dateFile.read())
 
+def clear_output():
+  output.delete('1.0', END)
 
 result = start()
 result = sgfplib.OpenDevice(0)
@@ -144,8 +157,10 @@ else:
   frameOutput = Frame(tk, relief=RIDGE, borderwidth=2, bg="black")
   btnExit = Button(frameOutput,text="Exit",command=tk.destroy, bg="white", fg="black")
   btnAdd = Button(frameAdd,text="add fingerprint",command=capture_check)
-  btnCheck_in = Button(frameCheck,text="check for fingerprint",command=check_in)
-  output = Text(frameOutput, width=100, height=10, font=('Arial', 14))
+  btnCheck_in = Button(frameCheck,text="check in",command=check_in)
+  btnCheck_today = Button(frameCheck,text="check today",command=check_today)
+  btnOutput_clear = Button(frameOutput,text="clear output",command=clear_output)
+  output = Text(frameOutput, width=80, height=10, font=('Arial', 14))
   label_email_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="EMAIL to ADD")
   label_finger_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="NAME to ADD")
   label_finger_check = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="Check Fingerprint")
@@ -161,8 +176,10 @@ else:
   label_email_input.pack(pady=5)
   email_input.pack(pady=5)
   btnCheck_in.pack(pady=5)
+  btnCheck_today.pack(pady=15)
   btnAdd.pack(pady=5)
-  output.pack(pady=5)
+  output.pack(pady=25)
+  btnOutput_clear.pack(pady=15)
   btnExit.pack(side=BOTTOM)
 
   tk.mainloop()
