@@ -2,7 +2,7 @@
 
 from pysgfplib import *
 from ctypes import *
-from os import listdir
+from os import listdir, mkdir
 from tkinter import *
 from time import sleep
 
@@ -42,6 +42,11 @@ def match(cMinutiaeBuffer1, cMinutiaeBuffer2):
   result = sgfplib.GetMatchingScore(cMinutiaeBuffer1, cMinutiaeBuffer2, byref(cScore));
   print("  Score : [" + str(cScore.value) + "]")
   return cMatched
+
+def mkEmail(name, emailInput):
+  if(bool(emailInput) == True):
+    email = open("emails/{}".format(name), "w")
+    email.write(emailInput)
 
 def save_min(name, cMinutiaeBuffer):
   taken = 0
@@ -84,25 +89,31 @@ def capture(cap, file):
     pass
   else:
    print("  ERROR - Unable to create first template. Exiting\n");
-   exit()
+   #exit()
 
   return cMinutiaeBuffer, qc
 
 def capture_check():
-  filename = finger_input.get();
-  cMinutiaeBuffer1, quality1 = capture(1, filename)
-  sleep(2)
-  cMinutiaeBuffer2, quality2 = capture(2, filename)
-  cMatched = match(cMinutiaeBuffer1, cMinutiaeBuffer2)
-  if (cMatched.value == True):
-    print("MATCH");
-    if quality1 >= quality2:
-      save_min(filename, cMinutiaeBuffer1)
+  filename = finger_input.get()
+  emailInput = email_input.get()
+  if(bool(filename) == True and bool(emailInput) == True):
+    cMinutiaeBuffer1, quality1 = capture(1, filename)
+    sleep(2)
+    cMinutiaeBuffer2, quality2 = capture(2, filename)
+    cMatched = match(cMinutiaeBuffer1, cMinutiaeBuffer2)
+    if (cMatched.value == True):
+      output.insert("end","[FINGER ADDED]");
+      if quality1 >= quality2:
+        cMinutiaeBuffer = cMinutiaeBuffer1
+      else:
+        cMinutiaeBuffer = cMinutiaeBuffer2
+      save_min(filename, cMinutiaeBuffer)
+      mkEmail(filename, emailInput)
+      return filename
     else:
-      save_min(filename, cMinutiaeBuffer1)
-    return filename
+      output.insert("end"," [FINGER NOT ADDED] ");
   else:
-    print("NO MATCH");
+    output.insert("end"," [MISSING DATA] ");
 
 def check_in():
   file="check_in"
@@ -112,7 +123,7 @@ def check_in():
     cMin = open("prints/{}".format(fprint), "rb")
     cMatched = match(cMin.read(), cMinutiaeBuffer3)
     if (cMatched.value == True):
-      output.insert("end","{}[MATCH]::".format(fprint));
+      output.insert("end"," {} [MATCH] ".format(fprint));
     else:
       pass
 
@@ -135,17 +146,21 @@ else:
   btnAdd = Button(frameAdd,text="add fingerprint",command=capture_check)
   btnCheck_in = Button(frameCheck,text="check for fingerprint",command=check_in)
   output = Text(frameOutput, width=100, height=10, font=('Arial', 14))
+  label_email_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="EMAIL to ADD")
   label_finger_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="NAME to ADD")
   label_finger_check = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="Check Fingerprint")
   finger_input = Entry(frameAdd, width=38, font=('Arial', 14))
+  email_input = Entry(frameAdd, width=38, font=('Arial', 14))
 
   frame.pack(side=TOP, fill=BOTH, expand=1)
   frameAdd.pack(side=LEFT, anchor=NW, fill=BOTH, expand=.5)
   frameCheck.pack(side=RIGHT, anchor=NE, fill=BOTH, expand=.5)
   frameOutput.pack(side=BOTTOM, fill=BOTH, expand=1)
   label_finger_input.pack(pady=5)
-  btnCheck_in.pack(pady=5)
   finger_input.pack(pady=5)
+  label_email_input.pack(pady=5)
+  email_input.pack(pady=5)
+  btnCheck_in.pack(pady=5)
   btnAdd.pack(pady=5)
   output.pack(pady=5)
   btnExit.pack(side=BOTTOM)
