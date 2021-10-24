@@ -1,0 +1,9 @@
+[Desktop Entry]
+Comment=finger print scanner app
+Terminal=false
+Keywords=pyf
+Name=pyfinger
+Exec=/home/alex/pythonFingers/0fingerscanner.py
+Type=Application
+Icon=/home/alex/pythonFingers/fingerprint.jpeg
+StartupNotify=false
