@@ -19,21 +19,16 @@ sgfplib = PYSGFPLib()
 def start():
   result = sgfplib.Create()
   if (result != SGFDxErrorCode.SGFDX_ERROR_NONE):
-    output.insert("end","Create error\n");
-    #exit()
+     print("Create error\n");
+     exit()
   else:
-    output.insert("end","Create OK\n")
+    print("Create OK\n")
   result = sgfplib.Init(SGFDxDeviceName.SG_DEV_AUTO)
   if (result != SGFDxErrorCode.SGFDX_ERROR_NONE):
-    output.insert("end","Init error\n");
-    #exit()
-  result = sgfplib.OpenDevice(0)
-  if (result != SGFDxErrorCode.SGFDX_ERROR_NONE):
-    output.insert("end","  ERROR - Unable to initialize SecuGen library. Exiting\n");
-    #exit()
+     print("Init error\n");
+     exit()
   else:
-    output.insert("end","Init OK\n")
-    btnStartScanner['state'] = DISABLED
+    print("Init OK\n")
   return result
 
 def end():
@@ -147,46 +142,46 @@ def check_today():
 def clear_output():
   output.delete('1.0', END)
 
-#result = start()
-#result = sgfplib.OpenDevice(0)
+result = start()
+result = sgfplib.OpenDevice(0)
+if (result != SGFDxErrorCode.SGFDX_ERROR_NONE):
+  print("  ERROR - Unable to initialize SecuGen library. Exiting\n");
+  exit()
+else:
+  tk = Tk()
+  tk.title("pythonFingers")
 
+  frame = Frame(tk, relief=RIDGE, borderwidth=2, bg="grey")
+  frameAdd = Frame(frame, relief=RIDGE, borderwidth=2, bg="grey")
+  frameCheck = Frame(frame, relief=RIDGE, borderwidth=2, bg="grey")
+  frameOutput = Frame(tk, relief=RIDGE, borderwidth=2, bg="black")
+  btnExit = Button(frameOutput,text="Exit",command=tk.destroy, bg="white", fg="black")
+  btnAdd = Button(frameAdd,text="add fingerprint",command=capture_check)
+  btnCheck_in = Button(frameCheck,text="check in",command=check_in)
+  btnCheck_today = Button(frameCheck,text="check today",command=check_today)
+  btnOutput_clear = Button(frameOutput,text="clear output",command=clear_output)
+  output = Text(frameOutput, width=80, height=10, font=('Arial', 14))
+  label_email_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="EMAIL to ADD")
+  label_finger_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="NAME to ADD")
+  label_finger_check = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="Check Fingerprint")
+  finger_input = Entry(frameAdd, width=38, font=('Arial', 14))
+  email_input = Entry(frameAdd, width=38, font=('Arial', 14))
 
-tk = Tk()
-tk.title("pythonFingers")
+  frame.pack(side=TOP, fill=BOTH, expand=1)
+  frameAdd.pack(side=LEFT, anchor=NW, fill=BOTH, expand=.5)
+  frameCheck.pack(side=RIGHT, anchor=NE, fill=BOTH, expand=.5)
+  frameOutput.pack(side=BOTTOM, fill=BOTH, expand=1)
+  label_finger_input.pack(pady=5)
+  finger_input.pack(pady=5)
+  label_email_input.pack(pady=5)
+  email_input.pack(pady=5)
+  btnCheck_in.pack(pady=5)
+  btnCheck_today.pack(pady=15)
+  btnAdd.pack(pady=5)
+  output.pack(pady=25)
+  btnOutput_clear.pack(pady=15)
+  btnExit.pack(side=BOTTOM)
 
-frame = Frame(tk, relief=RIDGE, borderwidth=2, bg="grey")
-frameAdd = Frame(frame, relief=RIDGE, borderwidth=2, bg="grey")
-frameCheck = Frame(frame, relief=RIDGE, borderwidth=2, bg="grey")
-frameOutput = Frame(tk, relief=RIDGE, borderwidth=2, bg="black")
-btnExit = Button(frameOutput,text="Exit",command=tk.destroy, bg="white", fg="black")
-btnAdd = Button(frameAdd,text="add fingerprint",command=capture_check)
-btnCheck_in = Button(frameCheck,text="check in",command=check_in)
-btnStartScanner = Button(frameCheck,text="start scanner",command=start)
-btnCheck_today = Button(frameCheck,text="check today",command=check_today)
-btnOutput_clear = Button(frameOutput,text="clear output",command=clear_output)
-output = Text(frameOutput, width=80, height=10, font=('Arial', 14))
-label_email_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="EMAIL to ADD")
-label_finger_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="NAME to ADD")
-label_finger_check = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="Check Fingerprint")
-finger_input = Entry(frameAdd, width=38, font=('Arial', 14))
-email_input = Entry(frameAdd, width=38, font=('Arial', 14))
-
-frame.pack(side=TOP, fill=BOTH, expand=1)
-frameAdd.pack(side=LEFT, anchor=NW, fill=BOTH, expand=.5)
-frameCheck.pack(side=RIGHT, anchor=NE, fill=BOTH, expand=.5)
-frameOutput.pack(side=BOTTOM, fill=BOTH, expand=1)
-label_finger_input.pack(pady=5)
-finger_input.pack(pady=5)
-label_email_input.pack(pady=5)
-email_input.pack(pady=5)
-btnStartScanner.pack(pady=5)
-btnCheck_in.pack(pady=5)
-btnCheck_today.pack(pady=15)
-btnAdd.pack(pady=5)
-output.pack(pady=25)
-btnOutput_clear.pack(pady=15)
-btnExit.pack(side=BOTTOM)
-
-tk.mainloop()
+  tk.mainloop()
 
 end()
