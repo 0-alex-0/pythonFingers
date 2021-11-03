@@ -6,6 +6,7 @@ from os import listdir, mkdir
 from tkinter import *
 from time import sleep
 from datetime import datetime
+import smtplib
 
 constant_hamster_pro20_width = 300
 constant_hamster_pro20_height = 400
@@ -39,6 +40,16 @@ def start():
 def end():
   sgfplib.CloseDevice()
   sgfplib.Terminate()
+
+def send_email():
+  eml="auto.eby.contact@gmail.com"
+  head="test"
+  body="this is a test"
+  server = smtplib.SMTP("smtp.gmail.com",587)
+  server.starttls()
+  server.login(eml, "fjdksla12")
+  msg = "From: {}\nTo: {}\nSubject: {}\n{}".format(eml, eml, head, body)
+  server.sendmail("Auto Eby Contact","auto.eby.contact@gmail.com",msg)
 
 def match(cMinutiaeBuffer1, cMinutiaeBuffer2):
   cMatched = c_bool(False)
@@ -164,6 +175,7 @@ btnCheck_in = Button(frameCheck,text="check in",command=check_in)
 btnStartScanner = Button(frameCheck,text="start scanner",command=start)
 btnCheck_today = Button(frameCheck,text="check today",command=check_today)
 btnOutput_clear = Button(frameOutput,text="clear output",command=clear_output)
+btnSend_email = Button(frameOutput,text="Send Email",command=send_email)
 output = Text(frameOutput, width=80, height=10, font=('Arial', 14))
 label_email_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="EMAIL to ADD")
 label_finger_input = Label(frameAdd, width=38, font=('Arial', 14), bg="black", fg="white", text="NAME to ADD")
@@ -185,6 +197,7 @@ btnCheck_today.pack(pady=15)
 btnAdd.pack(pady=5)
 output.pack(pady=25)
 btnOutput_clear.pack(pady=15)
+btnSend_email.pack(pady=15)
 btnExit.pack(side=BOTTOM)
 
 tk.mainloop()
