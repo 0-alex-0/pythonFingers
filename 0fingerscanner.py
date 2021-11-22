@@ -1,13 +1,19 @@
 #! /usr/bin/env python3
 
-from pysgfplib import *
-from ctypes import *
 from os import listdir, mkdir, environ
 from tkinter import *
 from tkinter import ttk
 from time import sleep
 from datetime import datetime
 import smtplib
+
+user = environ['USER']
+
+from sys import path
+path.insert(0, '/home/{}/pythonFingers'.format(user))
+
+from pysgfplib import *
+from ctypes import *
 
 constant_hamster_pro20_width = 300
 constant_hamster_pro20_height = 400
@@ -17,7 +23,6 @@ finger_height = constant_hamster_pro20_height
 
 
 sgfplib = PYSGFPLib()
-user = environ['USER']
 emailPass = "auto eby contact@"
 
 def start():
@@ -74,7 +79,7 @@ def mkEmail(name, emailInput):
 def save_min(name, cMinutiaeBuffer):
   taken = 0
   if(bool(name) == True):
-    fprints = listdir("prints")
+    fprints = listdir("/home/{}/pythonFingers/prints".format(user))
     for fprint in fprints:
       if(fprint == "{}".format(name)):
         taken = 1
@@ -145,7 +150,7 @@ def track_date(name):
 
 def check_in():
   file="check_in"
-  fprints = listdir("prints")
+  fprints = listdir("/home/{}/pythonFingers/prints".format(user))
   cMinutiaeBuffer3, quality3 = capture(0, file)
   for fprint in fprints:
     cMin = open("/home/{}/pythonFingers/prints/{}".format(user, fprint), "rb")
