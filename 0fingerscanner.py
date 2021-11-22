@@ -224,7 +224,7 @@ def emailSpam():
 
 def clear_output():
   output.delete('1.0', END)
-  output.insert("end", "Error: Cannot Find Day Record\n")
+  output.insert("end", "")
 
 #result = start()
 #result = sgfplib.OpenDevice(0)
