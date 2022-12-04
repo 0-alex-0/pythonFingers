@@ -4,3 +4,6 @@ paste libpysgfplib.so into /usr/local/lib directory
   cp libpysgfplib.so /usr/local/lib/libpysgfplib.so
 make 0fingerscanner.py executable
   chmod +x 0fingerscanner.py
+
+
+Email spamming is not yet working
